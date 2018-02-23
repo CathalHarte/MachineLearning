@@ -1,4 +1,6 @@
 import numpy as np
+import math
+import copy
 
 class LayeredNet:
     def __init__(self, n):
@@ -6,8 +8,11 @@ class LayeredNet:
         # starting at the input nodes and ending with the final output
         self.width = n
         self.depth = len(n)-1
-        self.synapse = [];
         # randomly initialize our weights with mean 0
+        self.gen_synapses()
+    
+    def gen_synapses(self):
+        self.synapse = [];
         for i in range(0,self.depth):
             self.synapse.append(2*np.random.random((self.width[i],self.width[i+1])) - 1) 
     
@@ -52,3 +57,13 @@ class LayeredNet:
             if np.all(np.round(self.layer[-1][i]) == y[i]):
                 correct += 1
         self.success_probability = correct/samples
+        
+    def grow(self,percent):
+        for i in range(1,len(self.width)-1):
+            self.width[i] = math.floor(self.width[i]*(1 + percent/100))
+        saveSynapse = copy.deepcopy(self.synapse)
+        self.gen_synapses()
+        for i in range(len(saveSynapse)):
+            x = saveSynapse[i].shape[0]
+            y = saveSynapse[i].shape[1]
+            self.synapse[i][0:x, 0:y] = saveSynapse[i][:,:]
