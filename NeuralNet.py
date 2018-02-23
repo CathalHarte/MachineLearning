@@ -19,7 +19,7 @@ class LayeredNet:
     def sigmoid(self, x,deriv=False):
         if(deriv==True):
             return x*(1-x)
-        return 1/(1+np.exp(-x))
+        return 1/(1 + np.tanh(.5 * x))
 
     def learn(self, X, y):
         # reduce error (single step) for the matrix inputs X and output y
