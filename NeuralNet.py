@@ -10,9 +10,9 @@ class LayeredNet:
         self.depth = len(n)-1
         # randomly initialize our weights with mean 0
         self.gen_synapses()
-        if activation == True:
+        if activation == "sigmoid":
             self.f = self.sigmoid
-        else:
+        elif activation == "softsign":
             self.f = self.softsign
     
     def gen_synapses(self):
