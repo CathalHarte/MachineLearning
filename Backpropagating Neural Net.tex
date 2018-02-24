@@ -1,0 +1,84 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage{titlesec}
+\titleformat{\chapter}
+{\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+\usepackage{setspace}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{siunitx}
+
+\usepackage{natbib}
+\bibliographystyle{agsm}
+\usepackage{verbatim}
+\usepackage[toc,page]{appendix}
+
+\begin{comment} \label{ImportantNotationChoices}
+Use bold for matrices at least, possibly vectors also.
+Subscript is for finite spatial locations, superscript for time steps as in \ref{finiteNotation}
+Heaviside will be denoted as $\mathcal{H}$
+I will use $\exp \left( x \right)$, not $e^x$
+\end{comment}
+\DeclareMathOperator \erf{erf}
+\DeclareMathOperator \gbw{GBW}
+\DeclareMathOperator \snr{SNR}
+\DeclareMathOperator \sqnr{SQNR}
+\def \recomb{recombination }
+\def \Recomb{Recombination }
+\def \diff{diffusion }
+\begin{document}
+\chapter{Homebrewed Neural Networks in Python}
+The goal of this document is to derive a scheme for the backpropagation of error in an arbitrary depth neural network which is implemented as a class in python.
+\begin{equation}
+\frac{\partial E}{\partial w_i} = \left( f(x) - y \right) \frac{f(x)}{\partial w_i}
+\end{equation} 
+These partial derivatives are collected into the gradient of the error.
+\begin{equation}
+	\nabla E = (f(x) - y) \frac{f(x)}{dw}
+\end{equation}
+\section{Description of Class}
+The net is initialized by an array or list input, where the first index holds the number of inputs, the final holds the number of outputs, and the rest hold the number of perceptrons designated for each hidden layer.
+
+Immediately there were problems evident. Large batch training would halt all progress from the get go. I settled on using small batches of ten, interestingly the same number that \cite{understand} uses for deep net training. 
+
+Even with smaller batches, the local minimum of making no predictions is found. I reasoned that this is because of the configuration of the output, a (functionally) binary node for each digit in MNIST \cite{mnist}. Achieving 90\% accuracy, if you can call it that, is as easy as remaining forever silent. Reading \cite{understand} provides an alternate explanation, the top layer saturates at 0 because of an amplification of inputs through the multiple layers. This saturation does not halt the learning, but rather it slows it, there is less information to gain from a saturated signal, so backpropagation of error is inhibited. Motivated by this \cite{understand} proposes a different activation than logistic sigmoid; equation\ref{sig}; in the softsign equation \ref{soft}
+\begin{equation} \label{sig}
+\sigma(x) = \frac{1}{1+\exp \left(-x\right)}
+\end{equation}
+\begin{equation} \label{soft}
+f(x) = \frac{x}{1+|x|}
+\end{equation}
+Spiking neural networks apparently use a noisy softplus to emulate biology, although I need to look a little deeper into this.
+
+\section{Annealing Technique to Try}
+So doing a check of the whole dataset is a little overkill for moving just a single step in the right direction. What I should do instead is spot check, and if the new probability is ahead of the old one, then I take it. If I put the correct probability maths on this, I can carefully control the heat of the system and properly implement simulated annealing at a much lower cost.
+\section{Using Other Peoples Tools}
+Use \texttt{TensorFlow} GPU with \texttt{Keras}. Suggested by Yassine Ghouzam, PhD.
+I could have this run on \texttt{Google} cloud computing machines (the ones designated for machine learning). 
+
+Out of the box, it gives me a two layer network, one with \texttt{relu} activation, the other with \texttt{softmax} activation.
+These are the rectifier; rectified linear unit equation \ref{relu}, and the normalized exponential function equation \ref{softmax}, which is a generalization of the logistic function that "squashes" a K-dimensional vector $\boldsymbol{z}$  of arbitrary real values to a K-dimensional vector $\sigma (\boldsymbol{z} )$ of real values in the range $[0, 1]$ that add up to 1.
+\begin{equation} \label{relu}
+	f(x) = \max \left(0, x\right)
+\end{equation}
+\begin{align} \label{softmax}
+\sigma:\mathbb{R}^K \to [0,1]^K \quad
+\sigma(\boldsymbol{z})_j = \frac{e^{z_j}}{\sum_{k=1}^K e^{z_k}}
+\end{align}
+Going further still, we can combine sigmoid and the rectifier into a new function proposed by \cite{swish}, called Swish.
+\begin{equation} \label{swish}
+f(x) = x \cdot \sigma(\beta x)
+\end{equation}
+The factor $\beta$ is a parameter to be optimized. Written in full (because I shouldn't call the sigmoid from another function, this is too slow in python) this function is the following.
+\begin{equation} \label{swishLong}
+\textup{Swish}(x) = \frac{x}{1+\exp \left(-\beta x\right)}
+\end{equation}
+\begin{equation} \label{swishLongDerivative}
+\frac{\partial \textup{Swish}(x)}{\partial x} = \frac{\exp(\beta x)\left( \beta x + \exp (\beta x) + 1\right)}{\left(\exp(\beta x) + 1\right)^2}
+\end{equation}
+\bibliography{refs}{}
+\end{document}
