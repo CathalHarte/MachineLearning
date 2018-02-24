@@ -23,13 +23,13 @@ class LayeredNet:
     def sigmoid(self, x,deriv=False):
         if(deriv==True):
             return x*(1-x)
-        return 1/(1 + np.tanh(.5 * x))
+        return 1/(1+np.exp(-x))
     
     def softsign(self, x, deriv=False):
         if(deriv==True):
             return 1/(1+abs(x))**2
         return x/(1+abs(x))
-        
+
     def learn(self, X, y):
         # reduce error (single step) for the matrix inputs X and output y
         self.apply(X)
