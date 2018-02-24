@@ -3,13 +3,17 @@ import math
 import copy
 
 class LayeredNet:
-    def __init__(self, n):
+    def __init__(self, n, activation):
         # The array n defines the width of each layer in the neural net
         # starting at the input nodes and ending with the final output
         self.width = n
         self.depth = len(n)-1
         # randomly initialize our weights with mean 0
         self.gen_synapses()
+        if activation == True:
+            self.f = self.sigmoid
+        else:
+            self.f = self.softsign
     
     def gen_synapses(self):
         self.synapse = [];
@@ -20,14 +24,19 @@ class LayeredNet:
         if(deriv==True):
             return x*(1-x)
         return 1/(1 + np.tanh(.5 * x))
-
+    
+    def softsign(self, x, deriv=False):
+        if(deriv==True):
+            return 1/(1+abs(x))**2
+        return x/(1+abs(x))
+        
     def learn(self, X, y):
         # reduce error (single step) for the matrix inputs X and output y
         self.apply(X)
         E = self.layer[-1] - y
         self.error = E
         for i in range(self.depth, 0, -1):
-            dfdw = self.sigmoid(self.layer[i],deriv=True)
+            dfdw = self.f(self.layer[i],deriv=True)
             dE = E*dfdw
             # I'm aiming to make this look like Data Mining 6.4
             w_j = self.synapse[i-1].T
@@ -46,7 +55,7 @@ class LayeredNet:
         self.layer = []
         self.layer.append(X)
         for synapse in self.synapse:
-            self.layer.append(self.sigmoid(np.dot(self.layer[-1],synapse)))
+            self.layer.append(self.f(np.dot(self.layer[-1],synapse)))
         self.decision = self.layer[-1]
     
     def success_rate(self,X,y):
