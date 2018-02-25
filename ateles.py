@@ -1,8 +1,12 @@
+# The first Neural Net Model of the Ateles project
+# Named after the spider monkeys subjected to efferent nerve swapping operations
+# by Dr. Roger Wolcott Sperry
+
 import numpy as np
 import math
 import copy
 
-class LayeredNet:
+class DenseSequential:
     def __init__(self, n, activation):
         # The array n defines the width of each layer in the neural net
         # starting at the input nodes and ending with the final output
@@ -10,10 +14,7 @@ class LayeredNet:
         self.depth = len(n)-1
         # randomly initialize our weights with mean 0
         self.gen_synapses()
-        if activation == "sigmoid":
-            self.f = self.sigmoid
-        elif activation == "softsign":
-            self.f = self.softsign
+        self.f = getattr(self, activation)
     
     def gen_synapses(self):
         self.synapse = [];
