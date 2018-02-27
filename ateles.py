@@ -30,6 +30,11 @@ class DenseSequential:
         if(deriv==True):
             return 1/(1+abs(x))**2
         return x/(1+abs(x))
+        
+    def swish(self,x,deriv=False):
+        if(deriv==True):
+            exp(self.beta*x)*(self.beta*x + exp(self.beta*x) + 1)/(exp(self.beta*x) + 1)**2
+        return x/(1 + exp(-self.beta*x))
 
     def learn(self, X, y):
         # reduce error (single step) for the matrix inputs X and output y
