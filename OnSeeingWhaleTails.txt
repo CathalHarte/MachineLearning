@@ -1,0 +1,28 @@
+Whales - Pre processing
+Layer 0:
+    What is the first thing we know a human does when he sees, or hears, or feels pressure (probably), he takes the logarithm
+    So the simplest piece of pre-processing to do is to take a logarithm of the initial image, which means that huge changes in light levels
+    don't dominate \textit{as} much, and detail is preserved. This, I feel is a better way to ensure that overfitting doesn't occur, rather than downsampling.
+    Would your idea of what a dog is be helped, or hindered, by only looking at them from far away?
+Layer 1:
+    I should use a Weiner filter style construct to extract the noisy signal -> the sea, from the predictable signal, the tail
+    A simpler thing to do, which way be just as effective, is low pass filtering, then high pass filtering. This draws an outline of the tail
+Layer 2:
+    Guided transform. Map the extracted trace of tail, or the whole tail itself into a pre defined shape. This would be some sort of corner drag thing, that either
+    works on the outline to distort the shape within, or I could use phase correlation techniques to match a template.
+    How do I get the average tail shape?
+    Apply edge detection to a batch. Average all these images, in a coagulating sort of process, batch by batch, using overlaying with phase correlation that includes
+    an angle and size operation.
+    
+A more automated learning process which is sure to learn these methods?
+    I need to feed the machine pictures of the sea, which do not contain a whale at all
+    Generative Adversarial network. This would create an idea of what a whales tail looks like
+    A convolution layer with a reasonable convolution width of field is capable of exploding just the tail in the middle, 
+    but how do I insist on it looking there and there only?
+    
+    
+First layer of learning is to train pictures of whale tails in the ocean versus pictures of empty ocean, for this I would like to figure out the google images api, and download 
+at will, on demand, whenever.
+The way this will be trained is with overcorrection. If there are thirty output neurons for whales, then the first round of training demands that in a pic of a whale tail, 
+all thirty will light up together. In a picture with no whale, they all go dark. This trains the net to look directly at the tail, and not the surroundings.
+Once it has that idea in its mind, I change the "correct" answers to hone the response based to tell me exactly which whale I am looking at.
